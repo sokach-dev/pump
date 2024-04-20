@@ -2,6 +2,8 @@ use crate::pump::{Assess, AssessBuilder};
 use anyhow::Result;
 use serde::Deserialize;
 
+use super::check_contract;
+
 #[derive(Debug, Deserialize)]
 pub struct NewPairInfoResponse {
     pub code: i32,
@@ -89,7 +91,8 @@ https://gmgn.ai/defi/quotation/v1/tokens/sol/BjmBDhSCfJwNMp7uFgJ9GCjCCmsP1nWwaDe
 
 // 查询新交易对信息
 pub async fn query_new_pair_info(address: &str) -> Result<Assess> {
-    let url = format!("https://gmgn.ai/defi/quotation/v1/tokens/sol/{}", address);
+    let config = crate::utils::get_global_config().await;
+    let url = format!("{}/{}", &config.gmgn_get_pair_info_url, address);
     let resp = reqwest::get(&url)
         .await?
         .json::<NewPairInfoResponse>()
@@ -98,12 +101,15 @@ pub async fn query_new_pair_info(address: &str) -> Result<Assess> {
         return Err(anyhow::anyhow!("query new pair info failed: {}", resp.msg));
     }
     let token = resp.data.token;
+    // check contract status
+    let contrac_status = check_contract::query_contract_status("sol", address).await?;
+
     let assess = AssessBuilder::default()
         .symbol(token.symbol)
         .coin_name(token.name)
         .chain(token.chain)
         .contract_address(token.address)
-        .contract_status("normal".to_string())
+        .contract_status(contrac_status)
         .mint_renounced(token.renounced_mint)
         .top_10_holder_rate(token.top_10_holder_rate)
         .renounced_freeze_account(token.renounced_freeze_account)
@@ -112,10 +118,7 @@ pub async fn query_new_pair_info(address: &str) -> Result<Assess> {
         .rug_ratio(token.rug_ratio)
         .creator_address(token.creator_address)
         .creator_balance(token.creator_balance)
-        .pool_creation_timestamp(chrono::NaiveDateTime::from_timestamp(
-            token.open_timestamp,
-            0,
-        ))
+        .pool_creation_timestamp(token.open_timestamp)
         .gmgn_link(token.link.gmgn)
         .pump_launch(token.launchpad.unwrap_or("".to_string()))
         .tip("".to_string())

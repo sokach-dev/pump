@@ -36,8 +36,11 @@ pub struct NewPair {
     pub base_address: String,
 }
 pub async fn query_new_pairs() -> Result<Vec<String>> {
-    let url = "https://gmgn.ai/defi/quotation/v1/pairs/sol/new_pairs?limit=8&orderby=open_timestamp&direction=desc&filters[]=not_honeypot";
-    let resp = reqwest::get(url).await?.json::<NewPairsResponse>().await?;
+    let config = crate::utils::get_global_config().await;
+    let resp = reqwest::get(&config.gmgn_get_new_pairs_url)
+        .await?
+        .json::<NewPairsResponse>()
+        .await?;
     if resp.code != 0 {
         return Err(anyhow::anyhow!("query new pairs failed: {}", resp.msg));
     }

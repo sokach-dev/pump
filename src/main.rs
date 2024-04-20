@@ -23,11 +23,11 @@ struct Cli {
 #[derive(Debug, Subcommand)]
 enum Commands {
     // mirror new pool
-    #[clap(name = "pump")]
+    #[clap(name = "pump", about = "pump new pairs")]
     Pump,
 
     // start web server
-    #[clap(name = "web")]
+    #[clap(name = "web", about = "start web server")]
     Web,
 
     // start alter server, will send alter massage to dingtalk or telegram

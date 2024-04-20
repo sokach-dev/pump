@@ -1,8 +1,8 @@
-
+use crate::utils;
 use anyhow::Result;
 use serde::Deserialize;
 
-#[derive(Debug, Deserialize )]
+#[derive(Debug, Deserialize)]
 pub struct CheckContractResponse {
     pub score: i32,
 }
@@ -15,12 +15,23 @@ https://api.rugcheck.xyz/v1/tokens/7gKCkfWmkqcV7Y2vXZTpWZmbh1ikeSZcpJQvSSbic4Ue/
     ...
 }
 */
-async fn query_contract_status(chain: &str, address: &str) -> Result<String> {
+pub async fn query_contract_status(chain: &str, address: &str) -> Result<String> {
+    let config = utils::get_global_config().await;
+    let rugcheck_url = &config.rug_check_url;
     if chain != "sol" {
-        let url = format!("https://api.rugcheck.xyz/v1/tokens/{}/report", address);
-        let resp = reqwest::get(&url).await?.json::<CheckContractResponse>().await?;
-        return Ok(resp.score.to_string());
-    } else if chain == "eth"{
+        let url = format!("{}/{}/report", rugcheck_url, address);
+        let resp = reqwest::get(&url)
+            .await?
+            .json::<CheckContractResponse>()
+            .await?;
+        if resp.score < 500 {
+            return Ok("Good".to_string());
+        } else if resp.score < 1000 {
+            return Ok("Warn".to_string());
+        } else {
+            return Ok("Danger".to_string());
+        }
+    } else if chain == "eth" {
         // todo
     }
     return Ok("unknown".to_string());
