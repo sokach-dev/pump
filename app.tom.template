@@ -1,0 +1,13 @@
+
+database_url = "postgres://root:Postgres_admin123@127.0.0.1:5432/pump"
+rug_check_url = "https://api.rugcheck.xyz/v1/tokens/"
+gmgn_get_new_pairs_url = "https://gmgn.ai/defi/quotation/v1/pairs/sol/new_pairs?limit=10&orderby=open_timestamp&direction=desc&filters[]=not_honeypot"
+gmgn_get_pair_info_url = " https://gmgn.ai/defi/quotation/v1/tokens/sol/"
+
+[web]
+socket_addr = "0.0.0.0:3303"
+timeout = 30
+
+[alter]
+ding_url = "https://oapi.dingtalk.com/robot/send?access_token=xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+title = "pump alter"
