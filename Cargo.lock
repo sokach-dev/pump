@@ -1508,7 +1508,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "pump"
+name = "pump_pair"
 version = "0.1.0"
 dependencies = [
  "anyhow",

@@ -1,8 +1,8 @@
-
 use super::{ModelsManager, PumpAssessor};
 
 use crate::pump;
 use anyhow::Result;
+use tracing::debug;
 
 #[async_trait::async_trait]
 impl PumpAssessor for ModelsManager {
@@ -14,27 +14,34 @@ impl PumpAssessor for ModelsManager {
                 burn_status, rug_ratio, creator_address, creator_balance,
                 pool_creation_timestamp, gmgn_link, tip)
                 VALUES ({}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {})",
-                assess.symbol, assess.coin_name, assess.chain, assess.contract_address,
-                assess.contract_status, assess.mint_renounced, assess.top_10_holder_rate,
-                assess.renounced_freeze_account, assess.burn_ratio, assess.burn_status,
-                assess.rug_ratio, assess.creator_address, assess.creator_balance,
-                assess.pool_creation_timestamp, assess.gmgn_link, assess.tip,
+            assess.symbol,
+            assess.coin_name,
+            assess.chain,
+            assess.contract_address,
+            assess.contract_status,
+            assess.mint_renounced,
+            assess.top_10_holder_rate,
+            assess.renounced_freeze_account,
+            assess.burn_ratio,
+            assess.burn_status,
+            assess.rug_ratio,
+            assess.creator_address,
+            assess.creator_balance,
+            assess.pool_creation_timestamp,
+            assess.gmgn_link,
+            assess.tip,
         );
 
-        sqlx::query(&sql_str)
-            .execute(&self.pool)
-            .await?;
+        sqlx::query(&sql_str).execute(&self.pool).await?;
         Ok(())
     }
 
     async fn get_assess_by_contract_address(&self, address: &str) -> Result<pump::Assess> {
         let sql_str = format!(
             "SELECT * FROM pump.assess WHERE contract_address = {} AND deleted = 0",
-            address 
+            address
         );
-        let assess = sqlx::query_as(&sql_str)
-            .fetch_one(&self.pool)
-            .await?;
+        let assess = sqlx::query_as(&sql_str).fetch_one(&self.pool).await?;
 
         Ok(assess)
     }
@@ -44,10 +51,21 @@ impl PumpAssessor for ModelsManager {
             "SELECT * FROM pump.assess AND deleted = 0 ORDER BY id DESC LIMIT {}",
             limit
         );
-        let assesses = sqlx::query_as(&sql_str)
-            .fetch_all(&self.pool)
-            .await?;
+        let assesses = sqlx::query_as(&sql_str).fetch_all(&self.pool).await?;
 
         Ok(assesses)
+    }
+
+    async fn check_contract_address_exist(&self, address: &str) -> bool {
+        match self.get_assess_by_contract_address(address).await {
+            Ok(a) => {
+                debug!("contract address exist: {}, assess: {:?}", address, a);
+                return true;
+            }
+            Err(e) => {
+                debug!("contract address not exist: {}, error: {:?}", address, e);
+                return false;
+            }
+        }
     }
 }

@@ -4,10 +4,10 @@ use vergen::EmitBuilder;
 
 fn main() -> Result<(), Box<dyn Error>> {
     EmitBuilder::builder()
-    .all_build()
-    .all_git()
-    .all_rustc()
-    .emit()?;
+        .all_build()
+        .all_git()
+        .all_rustc()
+        .emit()?;
 
     Ok(())
 }

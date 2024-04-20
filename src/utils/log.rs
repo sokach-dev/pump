@@ -12,8 +12,8 @@ pub fn init_tracing() {
         .with_timer(local_time)
         .with_env_filter(
             EnvFilter::builder()
-            .with_default_directive(LevelFilter::INFO.into())
-            .from_env_lossy(),
+                .with_default_directive(LevelFilter::INFO.into())
+                .from_env_lossy(),
         )
         .with_line_number(true)
         .with_file(true)

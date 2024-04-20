@@ -11,13 +11,14 @@ pub async fn get_global_config() -> &'static Arc<Config> {
     let config_url = env::var("PUMP_CONFIG").expect("config url not found, check env PUMP_CONFIG");
 
     GLOBAL_CONFIG
-    .get_or_init(|| async {
-        Arc::new(
-            fs::read_to_string(config_url)
-            .await
-            .unwrap()
-            .parse::<Config>()
-            .unwrap(),
-        )
-    }).await
+        .get_or_init(|| async {
+            Arc::new(
+                fs::read_to_string(config_url)
+                    .await
+                    .unwrap()
+                    .parse::<Config>()
+                    .unwrap(),
+            )
+        })
+        .await
 }

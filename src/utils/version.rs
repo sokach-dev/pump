@@ -1,4 +1,3 @@
-
 pub fn get_version() -> &'static str {
     let v = format!(
         "{}+{}+{}+{}",
