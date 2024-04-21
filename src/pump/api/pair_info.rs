@@ -124,6 +124,7 @@ pub async fn query_new_pair_info(address: &str) -> Result<Assess> {
         .gmgn_link(token.link.gmgn)
         .pump_launch(token.launchpad.unwrap_or("".to_string()))
         .tip("".to_string())
+        .deleted(0)
         .build()?;
 
     Ok(assess)
