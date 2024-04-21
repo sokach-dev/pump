@@ -13,7 +13,8 @@ impl PumpAssessor for ModelsManager {
                 top_10_holder_rate, renounced_freeze_account, burn_ratio,
                 burn_status, rug_ratio, creator_address, creator_balance,
                 pool_creation_timestamp, gmgn_link, tip)
-                VALUES ({}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {})",
+                VALUES ('{}', '{}', '{}', '{}', '{}', {},
+                {}, {}, '{}', '{}', {}, '{}', {}, {}, '{}', '{}')",
             assess.symbol,
             assess.coin_name,
             assess.chain,
@@ -38,7 +39,7 @@ impl PumpAssessor for ModelsManager {
 
     async fn get_assess_by_contract_address(&self, address: &str) -> Result<pump::Assess> {
         let sql_str = format!(
-            "SELECT * FROM pump.assess WHERE contract_address = {} AND deleted = 0",
+            "SELECT * FROM pump.assess WHERE contract_address = '{}' AND deleted = 0",
             address
         );
         let assess = sqlx::query_as(&sql_str).fetch_one(&self.pool).await?;
