@@ -13,6 +13,7 @@ use tracing::{info, warn};
 
 #[derive(Debug, Clone, Serialize, Builder, FromRow)]
 pub struct Assess {
+    #[builder(setter(skip))]
     pub id: i64,
     pub symbol: String,                // 符号
     pub coin_name: String,             // 币名
@@ -31,8 +32,10 @@ pub struct Assess {
     pub gmgn_link: String,             // GMGN链接
     pub pump_launch: String,           // 启动平台
     pub tip: String,                   // 提示
-    pub created_at: NaiveDateTime,     // 创建时间
-    pub updated_at: NaiveDateTime,     // 更新时间
+    #[builder(setter(skip))]
+    pub created_at: NaiveDateTime, // 创建时间
+    #[builder(setter(skip))]
+    pub updated_at: NaiveDateTime, // 更新时间
     pub deleted: i32,                  // 是否删除
 }
 

@@ -1,6 +1,7 @@
 use crate::pump::{Assess, AssessBuilder};
 use anyhow::Result;
 use serde::Deserialize;
+use tracing::debug;
 
 use super::check_contract;
 
@@ -93,6 +94,7 @@ https://gmgn.ai/defi/quotation/v1/tokens/sol/BjmBDhSCfJwNMp7uFgJ9GCjCCmsP1nWwaDe
 pub async fn query_new_pair_info(address: &str) -> Result<Assess> {
     let config = crate::utils::get_global_config().await;
     let url = format!("{}/{}", &config.gmgn_get_pair_info_url, address);
+    debug!("query new pair info url: {}", url);
     let resp = reqwest::get(&url)
         .await?
         .json::<NewPairInfoResponse>()
