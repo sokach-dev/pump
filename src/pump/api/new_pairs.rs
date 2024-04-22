@@ -1,7 +1,7 @@
 use crate::models::{self, PumpAssessor};
 use anyhow::Result;
 use serde::Deserialize;
-use tracing::{debug, info};
+use tracing::{debug, error, info};
 
 /*  query new pool
 https://gmgn.ai/defi/quotation/v1/pairs/sol/new_pairs?limit=10&orderby=open_timestamp&direction=desc&filters[]=not_honeypot
@@ -67,5 +67,11 @@ pub async fn query_new_pairs() -> Result<Vec<String>> {
 // check new pairs if exist
 pub async fn check_new_pairs(address: &str) -> bool {
     let manager = models::get_global_manager().await;
-    return manager.check_contract_address_exist(address).await;
+    match manager.judge_assess_contract_address_exist(address).await {
+        Ok(exist) => exist,
+        Err(e) => {
+            error!("check new pairs failed: {}", e);
+            false
+        }
+    }
 }

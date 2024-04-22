@@ -44,6 +44,6 @@ pub trait PumpAssessor {
     // get assess by limit
     async fn get_assess_by_limit(&self, limit: usize) -> Result<Vec<Assess>>;
 
-    // check contract_address exist
-    async fn check_contract_address_exist(&self, address: &str) -> bool;
+    // judge assess contract address exist
+    async fn judge_assess_contract_address_exist(&self, address: &str) -> Result<bool>;
 }

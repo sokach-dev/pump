@@ -1,14 +1,23 @@
 use super::{ModelsManager, PumpAssessor};
 
-use crate::pump;
+use crate::{pump, utils};
 use anyhow::Result;
-use tracing::debug;
+use chrono::DateTime;
+
+#[derive(sqlx::FromRow)]
+struct RecordExist {
+    exist: bool,
+}
 
 #[async_trait::async_trait]
 impl PumpAssessor for ModelsManager {
     async fn add_assess(&self, assess: pump::Assess) -> Result<()> {
+        // 转化时间戳，如果失败使用当前时间
+        let local_dt = DateTime::from_timestamp(assess.pool_creation_timestamp, 0)
+            .unwrap_or(utils::get_local_time_second(8).and_utc());
+
         let sql_str = format!(
-            "INSERT INTO pump.assess (symbol, coin_name, chain, 
+            "INSERT INTO pump.assess (symbol, coin_name, chain,
                 contract_address, contract_status, mint_renounced,
                 top_10_holder_rate, renounced_freeze_account, burn_ratio,
                 burn_status, rug_ratio, creator_address, creator_balance,
@@ -28,7 +37,7 @@ impl PumpAssessor for ModelsManager {
             assess.rug_ratio,
             assess.creator_address,
             assess.creator_balance,
-            assess.pool_creation_timestamp,
+            local_dt,
             assess.gmgn_link,
             assess.tip,
         );
@@ -57,16 +66,17 @@ impl PumpAssessor for ModelsManager {
         Ok(assesses)
     }
 
-    async fn check_contract_address_exist(&self, address: &str) -> bool {
-        match self.get_assess_by_contract_address(address).await {
-            Ok(a) => {
-                debug!("contract address exist: {}, assess: {:?}", address, a);
-                return true;
-            }
-            Err(e) => {
-                debug!("contract address not exist: {}, error: {:?}", address, e);
-                return false;
-            }
-        }
+    // judge assess contract address exist
+    async fn judge_assess_contract_address_exist(&self, address: &str) -> Result<bool> {
+        let sql_str = format!(
+            "SELECT EXISTS(SELECT 1 FROM pump.assess WHERE contract_address = '{}' AND deleted = 0) AS exist",
+            address
+        );
+
+        let record = sqlx::query_as::<_, RecordExist>(&sql_str)
+            .fetch_one(&self.pool)
+            .await?;
+
+        Ok(record.exist)
     }
 }
