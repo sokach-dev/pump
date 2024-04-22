@@ -23,7 +23,7 @@ impl PumpAssessor for ModelsManager {
                 burn_status, rug_ratio, creator_address, creator_balance,
                 pool_creation_timestamp, gmgn_link, tip)
                 VALUES ('{}', '{}', '{}', '{}', '{}', {},
-                {}, {}, '{}', '{}', {}, '{}', {}, {}, '{}', '{}')",
+                {}, {}, '{}', '{}', {}, '{}', {}, '{}', '{}', '{}')",
             assess.symbol,
             assess.coin_name,
             assess.chain,
