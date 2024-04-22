@@ -1,6 +1,7 @@
 use crate::models::{self, PumpAssessor};
 use anyhow::Result;
 use serde::Deserialize;
+use tap::prelude::*;
 use tracing::{debug, error, info};
 
 /*  query new pool
@@ -40,7 +41,14 @@ pub async fn query_new_pairs() -> Result<Vec<String>> {
     let resp = reqwest::get(&config.gmgn_get_new_pairs_url)
         .await?
         .json::<NewPairsResponse>()
-        .await?;
+        .await?
+        .tap(|resp| {
+            debug!(
+                "query new pairs response: {:?}, url: {}",
+                resp, &config.gmgn_get_new_pairs_url
+            )
+        });
+
     if resp.code != 0 {
         return Err(anyhow::anyhow!("query new pairs failed: {}", resp.msg));
     }

@@ -1,6 +1,7 @@
 use crate::utils;
 use anyhow::Result;
 use serde::Deserialize;
+use tap::prelude::*;
 use tracing::debug;
 
 #[derive(Debug, Deserialize)]
@@ -25,7 +26,9 @@ pub async fn query_contract_status(chain: &str, address: &str) -> Result<String>
         let resp = reqwest::get(&url)
             .await?
             .json::<CheckContractResponse>()
-            .await?;
+            .await?
+            .tap(|resp| debug!("query contract status response: {:?}, url: {}", resp, url));
+
         if resp.score < 500 {
             return Ok("Good".to_string());
         } else if resp.score < 1000 {

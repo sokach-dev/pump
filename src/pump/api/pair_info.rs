@@ -1,6 +1,7 @@
 use crate::pump::{Assess, AssessBuilder};
 use anyhow::Result;
 use serde::Deserialize;
+use tap::prelude::*;
 use tracing::debug;
 
 use super::check_contract;
@@ -98,7 +99,9 @@ pub async fn query_new_pair_info(address: &str) -> Result<Assess> {
     let resp = reqwest::get(&url)
         .await?
         .json::<NewPairInfoResponse>()
-        .await?;
+        .await?
+        .tap(|resp| debug!("query new pair info response: {:?}, url: {}", resp, url));
+
     if resp.code != 0 {
         return Err(anyhow::anyhow!("query new pair info failed: {}", resp.msg));
     }
