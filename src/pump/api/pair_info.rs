@@ -33,7 +33,7 @@ pub struct NewToken {
     pub burn_ratio: String,
     pub burn_status: String,
     pub launchpad: Option<String>,
-    pub rug_ratio: f64,
+    pub rug_ratio: Option<f64>,
     pub holder_rugged_num: i64,
     pub holder_token_num: i64,
     pub creator_address: String,
@@ -105,6 +105,7 @@ pub async fn query_new_pair_info(address: &str) -> Result<Assess> {
     let token = resp.data.token;
     // check contract status
     let contrac_status = check_contract::query_contract_status("sol", address).await?;
+    debug!("contract status: {}, address: {}", contrac_status, address);
 
     let assess = AssessBuilder::default()
         .symbol(token.symbol)
@@ -117,7 +118,7 @@ pub async fn query_new_pair_info(address: &str) -> Result<Assess> {
         .renounced_freeze_account(token.renounced_freeze_account)
         .burn_ratio(token.burn_ratio)
         .burn_status(token.burn_status)
-        .rug_ratio(token.rug_ratio)
+        .rug_ratio(token.rug_ratio.unwrap_or(-1.0)) // -1 表示没有跑路记录,也就不知道是否跑路
         .creator_address(token.creator_address)
         .creator_balance(token.creator_balance)
         .pool_creation_timestamp(token.open_timestamp)
