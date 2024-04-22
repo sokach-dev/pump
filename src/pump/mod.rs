@@ -85,13 +85,13 @@ pub async fn pump_new_pairs() -> Result<()> {
     // 3. alert new pairs
     for a in alert_assesses {
         // 合约状态为Danger的不发送警告
-        if a.contract_status == "Danger" {
-            warn!(
-                "contract status is Danger, no need to alert: {}",
-                a.contract_address
-            );
-            continue;
-        }
+        // if a.contract_status == "Danger" {
+        //     warn!(
+        //         "contract status is Danger, no need to alert: {}",
+        //         a.contract_address
+        //     );
+        //     continue;
+        // }
         // 不燃烧的不发送警告
         if a.burn_status != "burn" {
             warn!(
