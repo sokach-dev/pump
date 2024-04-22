@@ -25,7 +25,8 @@ impl PumpAssessor for ModelsManager {
                 VALUES ('{}', '{}', '{}', '{}', '{}', {},
                 {}, {}, '{}', '{}', {}, '{}', {}, '{}', '{}', '{}')",
             assess.symbol,
-            assess.coin_name,
+            assess.symbol, // 名字中有'会导致数据库出错，这里用symbol代替名字
+            //assess.coin_name,
             assess.chain,
             assess.contract_address,
             assess.contract_status,
